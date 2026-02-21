@@ -28,4 +28,4 @@ jobs:
           sudo apt-get install -y google-chrome-stable
 
       - name: ▶️ Executar script
-        run: python seu_script.py
+        run: python monitor_moodle.py
