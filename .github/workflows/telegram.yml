@@ -3,7 +3,7 @@ name: Presenca Moodle Bot
 on:
   workflow_dispatch:   # permite rodar manualmente
   schedule:
-    - cron: "0 11 * * *"   # roda todos os dias às 11:00 UTC
+    - cron: "0 11 * * *"  # roda todos os dias às 11:00 UTC
 
 jobs:
   run-bot:
@@ -27,5 +27,10 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y google-chrome-stable
 
-      - name: ▶️ Executar script
+      - name: ▶️ Executar script do bot
+        env:
+          MOODLE_USER: ${{ secrets.MOODLE_USER }}
+          MOODLE_PASS: ${{ secrets.MOODLE_PASS }}
+          TELEGRAM_TOKEN: ${{ secrets.TELEGRAM_TOKEN }}
+          CHAT_ID: ${{ secrets.CHAT_ID }}
         run: python monitor_moodle.py
