@@ -2,9 +2,9 @@ name: Registrar Presença Moodle
 
 on:
   schedule:
-    # Rodar todo dia às 10:00 Paraguai (UTC-3)
+    # Todo dia às 10:00 Paraguai (UTC-3) → 13:00 UTC
     - cron: '0 13 * * *'
-  workflow_dispatch:
+  workflow_dispatch:  # permite rodar manualmente
 
 jobs:
   run-script:
@@ -25,11 +25,11 @@ jobs:
       - name: 📦 Install dependencies
         run: pip install requests
 
-      # 4️⃣ Instalar wkhtmltoimage
-      - name: 🖼️ Install wkhtmltoimage
+      # 4️⃣ Instalar wkhtmltopdf (necessário para gerar PDF)
+      - name: 🖨️ Install wkhtmltopdf
         run: sudo apt-get update && sudo apt-get install -y wkhtmltopdf
 
-      # 5️⃣ Rodar script
+      # 5️⃣ Rodar script Python
       - name: ▶️ Run monitor_moodle.py
         env:
           MOODLE_USER: ${{ secrets.MOODLE_USER }}
