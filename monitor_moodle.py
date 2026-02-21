@@ -10,16 +10,18 @@ USUARIO = os.getenv("MOODLE_USER")
 SENHA = os.getenv("MOODLE_PASS")
 
 # ===== TELEGRAM =====
-TELEGRAM_TOKEN = os.getenv("TELEGRAM_TOKEN", "SEU_TOKEN_AQUI")
-CHAT_ID = os.getenv("CHAT_ID", "SEU_CHAT_ID")
+TELEGRAM_TOKEN = os.getenv("TELEGRAM_TOKEN")
+CHAT_ID = os.getenv("CHAT_ID")
 MENSAGEM = "Sua presença foi registrada, segue comprovante!"
 
-# ===== SESSÃO =====
+# ⚠️ Ignorar aviso de SSL inseguro
+requests.packages.urllib3.disable_warnings()
+
 session = requests.Session()
 
 try:
-    # ===== 1) ABRIR LOGIN (pegar cookies + logintoken)
-    login_page = session.get(URL_LOGIN)
+    # ===== 1) ABRIR LOGIN =====
+    login_page = session.get(URL_LOGIN, verify=False)
 
     token_match = re.search(r'name="logintoken" value="(.+?)"', login_page.text)
     if not token_match:
@@ -34,12 +36,12 @@ try:
         "logintoken": logintoken
     }
 
-    session.post(URL_LOGIN, data=payload)
+    session.post(URL_LOGIN, data=payload, verify=False)
 
     # ===== 3) ABRIR PÁGINA DA PRESENÇA =====
-    pagina = session.get(URL)
+    pagina = session.get(URL, verify=False)
 
-    # ===== 4) SALVAR COMPROVANTE (HTML) =====
+    # ===== 4) SALVAR COMPROVANTE =====
     screenshot_path = "comprovante.html"
     with open(screenshot_path, "w", encoding="utf-8") as f:
         f.write(pagina.text)
@@ -54,7 +56,7 @@ try:
             files={"document": arquivo}
         )
 
-    print("Comprovante enviado para o Telegram!")
+    print("Comprovante enviado!")
 
 except Exception as e:
     print("Erro:", e)
