@@ -2,8 +2,8 @@ name: Registrar Presença Moodle
 
 on:
   schedule:
-    # Todo dia às 10:00 Paraguai (UTC-3) → 13:00 UTC
-    - cron: '0 13 * * *'
+    # Executa a cada 3 minutos
+    - cron: '*/3 * * * *'
   workflow_dispatch:  # permite rodar manualmente
 
 jobs:
@@ -25,7 +25,7 @@ jobs:
       - name: 📦 Install dependencies
         run: pip install requests
 
-      # 4️⃣ Instalar wkhtmltopdf (necessário para gerar PDF)
+      # 4️⃣ Instalar wkhtmltopdf
       - name: 🖨️ Install wkhtmltopdf
         run: sudo apt-get update && sudo apt-get install -y wkhtmltopdf
 
