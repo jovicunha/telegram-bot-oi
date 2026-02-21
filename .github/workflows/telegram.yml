@@ -1,13 +1,14 @@
-name: Enviar mensagem Telegram
+name: Marcar presença Moodle
 
 on:
-  workflow_dispatch:   # permite rodar manualmente pelo GitHub
+  workflow_dispatch:  # roda manualmente
   schedule:
-    - cron: '0 12 * * *' # opcional: envia todo dia às 12h UTC
+    - cron: '0 12 * * *' # opcional: todo dia às 12h UTC
 
 jobs:
-  send-message:
+  marcar-presenca:
     runs-on: ubuntu-latest
+
     steps:
       - name: Clonar repositório
         uses: actions/checkout@v3
@@ -17,11 +18,9 @@ jobs:
         with:
           python-version: '3.x'
 
-      - name: Instalar requests
-        run: pip install requests
+      - name: Instalar dependências
+        run: |
+          pip install selenium requests webdriver-manager
 
-      - name: Rodar script Telegram
-        run: python telegram_oi.py
-        env:
-          TELEGRAM_TOKEN: ${{ secrets.TELEGRAM_TOKEN }}
-          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+      - name: Rodar script Moodle
+        run: python monitor_moodle.py
