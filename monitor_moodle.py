@@ -1,72 +1,60 @@
 import os
-from selenium import webdriver
-from selenium.webdriver.common.by import By
-from selenium.webdriver.common.keys import Keys
-from selenium.webdriver.chrome.options import Options
-from selenium.webdriver.chrome.service import Service
-from selenium.webdriver.support.ui import WebDriverWait
-from selenium.webdriver.support import expected_conditions as EC
-from webdriver_manager.chrome import ChromeDriverManager
 import requests
-import time
+import re
 
 # ===== CONFIGURAÇÃO =====
 URL = "https://campus.upecde.edu.py:5022/moodle/mod/attendance/view.php?id=325"
+URL_LOGIN = "https://campus.upecde.edu.py:5022/moodle/login/index.php"
+
 USUARIO = os.getenv("MOODLE_USER")
 SENHA = os.getenv("MOODLE_PASS")
 
 # ===== TELEGRAM =====
-TELEGRAM_TOKEN = os.getenv("TELEGRAM_TOKEN", "8540217421:AAGdfsY40D15sf7KtCvv7KW4BMW8PTUz9VY")
-CHAT_ID = os.getenv("CHAT_ID", "6433432837")
+TELEGRAM_TOKEN = os.getenv("TELEGRAM_TOKEN", "SEU_TOKEN_AQUI")
+CHAT_ID = os.getenv("CHAT_ID", "SEU_CHAT_ID")
 MENSAGEM = "Sua presença foi registrada, segue comprovante!"
 
-# ===== CONFIGURAR CHROME HEADLESS =====
-options = Options()
-options.add_argument("--headless=new")
-options.add_argument("--no-sandbox")
-options.add_argument("--disable-dev-shm-usage")
-options.add_argument("--disable-gpu")
-options.add_argument("--window-size=1920,1080")
-options.add_argument("--ignore-certificate-errors")
-options.add_argument("--disable-blink-features=AutomationControlled")
-options.add_experimental_option("excludeSwitches", ["enable-automation"])
-options.add_experimental_option("useAutomationExtension", False)
-
-# ===== INIT WEBDRIVER =====
-service = Service(ChromeDriverManager().install())
-driver = webdriver.Chrome(service=service, options=options)
-wait = WebDriverWait(driver, 20)
+# ===== SESSÃO =====
+session = requests.Session()
 
 try:
-    # ===== ABRIR SITE =====
-    driver.get(URL)
+    # ===== 1) ABRIR LOGIN (pegar cookies + logintoken)
+    login_page = session.get(URL_LOGIN)
 
-    # ===== LOGIN =====
-    wait.until(EC.presence_of_element_located((By.ID, "username"))).send_keys(USUARIO)
-    wait.until(EC.presence_of_element_located((By.ID, "password"))).send_keys(SENHA)
-    driver.find_element(By.ID, "password").send_keys(Keys.RETURN)
+    token_match = re.search(r'name="logintoken" value="(.+?)"', login_page.text)
+    if not token_match:
+        raise Exception("Token de login não encontrado")
 
-    # ===== ESPERA PÁGINA CARREGAR =====
-    time.sleep(5)
+    logintoken = token_match.group(1)
 
-    # ===== AJUSTA JANELA PARA PRINT =====
-    total_height = driver.execute_script("return document.body.scrollHeight")
-    driver.set_window_size(1920, total_height)
+    # ===== 2) FAZER LOGIN =====
+    payload = {
+        "username": USUARIO,
+        "password": SENHA,
+        "logintoken": logintoken
+    }
 
-    # ===== TIRA PRINT =====
-    screenshot_path = "comprovante.png"
-    driver.save_screenshot(screenshot_path)
+    session.post(URL_LOGIN, data=payload)
 
-    # ===== ENVIA PARA TELEGRAM =====
-    url = f"https://api.telegram.org/bot{TELEGRAM_TOKEN}/sendPhoto"
-    with open(screenshot_path, "rb") as foto:
+    # ===== 3) ABRIR PÁGINA DA PRESENÇA =====
+    pagina = session.get(URL)
+
+    # ===== 4) SALVAR COMPROVANTE (HTML) =====
+    screenshot_path = "comprovante.html"
+    with open(screenshot_path, "w", encoding="utf-8") as f:
+        f.write(pagina.text)
+
+    # ===== 5) ENVIAR PARA TELEGRAM =====
+    url = f"https://api.telegram.org/bot{TELEGRAM_TOKEN}/sendDocument"
+
+    with open(screenshot_path, "rb") as arquivo:
         requests.post(
             url,
             data={"chat_id": CHAT_ID, "caption": MENSAGEM},
-            files={"photo": foto}
+            files={"document": arquivo}
         )
 
-    print("Print enviado para o Telegram!")
+    print("Comprovante enviado para o Telegram!")
 
-finally:
-    driver.quit()
+except Exception as e:
+    print("Erro:", e)
