@@ -3,9 +3,9 @@ name: Presenca Moodle Bot
 on:
   workflow_dispatch:   # permite rodar manualmente
   schedule:
-    # 🇵🇾 Todo dia às 01:00 da manhã (horário do Paraguai)
-    cron: "*/5 * * * *"
-    jobs:
+    - cron: "*/3 * * * *"   # ⏱️ a cada 3 minutos (UTC)
+
+jobs:
   run-bot:
     runs-on: ubuntu-latest
 
