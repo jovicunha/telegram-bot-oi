@@ -34,7 +34,7 @@ driver = webdriver.Chrome(service=service, options=options)
 try:
     # ===== ABRIR SITE =====
     driver.get(URL)
-    time.sleep(3)
+    time.sleep(8)
 
     # ===== LOGIN =====
     driver.find_element(By.ID, "username").send_keys(USUARIO)
@@ -42,10 +42,7 @@ try:
     driver.find_element(By.ID, "password").send_keys(Keys.RETURN)
     time.sleep(8)
 
-    # ===== ATUALIZA PÁGINA =====
-    driver.refresh()
-    time.sleep(3)
-
+ 
     # ===== AJUSTA JANELA PARA PRINT =====
     total_height = driver.execute_script("return document.body.scrollHeight")
     driver.set_window_size(1920, total_height)
