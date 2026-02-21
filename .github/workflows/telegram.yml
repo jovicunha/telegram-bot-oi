@@ -2,27 +2,35 @@ name: Registrar Presença Moodle
 
 on:
   schedule:
-    # ⏰ HORÁRIO EM UTC (ajuste abaixo)
-    - cron: '0 11 * * *'
-  workflow_dispatch:  # permite rodar manualmente também
+    # Rodar todo dia às 10:00 horário Paraguai (UTC-3)
+    - cron: '0 13 * * *'
+  workflow_dispatch:  # permite rodar manualmente
 
 jobs:
   run-script:
     runs-on: ubuntu-latest
 
     steps:
-      - name: 📥 Baixar repositório
+      # 1️⃣ Baixar repositório
+      - name: 📥 Checkout repository
         uses: actions/checkout@v4
 
-      - name: 🐍 Configurar Python
+      # 2️⃣ Configurar Python
+      - name: 🐍 Setup Python
         uses: actions/setup-python@v5
         with:
           python-version: '3.11'
 
-      - name: 📦 Instalar dependências
+      # 3️⃣ Instalar dependências Python
+      - name: 📦 Install dependencies
         run: pip install requests
 
-      - name: ▶️ Executar script
+      # 4️⃣ Instalar wkhtmltoimage
+      - name: 🖼️ Install wkhtmltoimage
+        run: sudo apt-get update && sudo apt-get install -y wkhtmltopdf
+
+      # 5️⃣ Rodar script
+      - name: ▶️ Run monitor_moodle.py
         env:
           MOODLE_USER: ${{ secrets.MOODLE_USER }}
           MOODLE_PASS: ${{ secrets.MOODLE_PASS }}
