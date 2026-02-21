@@ -1,26 +1,31 @@
-name: Marcar presença Moodle
+name: Presenca Moodle Bot
 
 on:
-  workflow_dispatch:  # roda manualmente
+  workflow_dispatch:   # permite rodar manualmente
   schedule:
-    - cron: '0 12 * * *' # opcional: todo dia às 12h UTC
+    - cron: "0 11 * * *"   # roda todos os dias às 11:00 UTC
 
 jobs:
-  marcar-presenca:
+  run-bot:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Clonar repositório
-        uses: actions/checkout@v3
+      - name: 📥 Baixar código do repositório
+        uses: actions/checkout@v4
 
-      - name: Configurar Python
-        uses: actions/setup-python@v4
+      - name: 🐍 Instalar Python
+        uses: actions/setup-python@v5
         with:
-          python-version: '3.x'
+          python-version: "3.11"
 
-      - name: Instalar dependências
+      - name: 📦 Instalar dependências
         run: |
-          pip install selenium requests webdriver-manager
+          pip install selenium webdriver-manager requests
 
-      - name: Rodar script Moodle
-        run: python monitor_moodle.py
+      - name: 🌐 Instalar Google Chrome
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y google-chrome-stable
+
+      - name: ▶️ Executar script
+        run: python seu_script.py
