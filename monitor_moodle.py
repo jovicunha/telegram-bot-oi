@@ -16,9 +16,7 @@ TELEGRAM_TOKEN = os.getenv("TELEGRAM_TOKEN")
 CHAT_ID = os.getenv("CHAT_ID")
 MENSAGEM = "Sua presença foi registrada, segue comprovante!"
 
-# ⚠️ Ignorar aviso de SSL inseguro
 requests.packages.urllib3.disable_warnings()
-
 session = requests.Session()
 
 try:
@@ -41,41 +39,41 @@ try:
     print("📄 Acessando página de presença...")
     pagina = session.get(URL, verify=False)
 
-    # ===== Gerar nome único para print =====
+    # ===== Gerar nome único =====
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
     html_path = f"pagina_{timestamp}.html"
-    screenshot_path = f"comprovante_{timestamp}.png"
+    pdf_path = f"comprovante_{timestamp}.pdf"
 
     # ===== Salvar HTML temporário =====
     with open(html_path, "w", encoding="utf-8") as f:
         f.write(pagina.text)
 
-    print("🖼️ Convertendo HTML em imagem...")
+    print("🖨️ Convertendo HTML em PDF...")
     result = subprocess.run([
-        "wkhtmltoimage",
-        "--width", "1280",
+        "wkhtmltopdf",
         html_path,
-        screenshot_path
+        pdf_path
     ], capture_output=True, text=True)
 
     print("stdout:", result.stdout)
     print("stderr:", result.stderr)
 
-    if not os.path.exists(screenshot_path):
-        raise Exception("Erro: arquivo de print não foi criado!")
+    if not os.path.exists(pdf_path):
+        raise Exception("Erro: arquivo PDF não foi criado!")
 
-    print("📩 Enviando print para Telegram...")
-    url = f"https://api.telegram.org/bot{TELEGRAM_TOKEN}/sendPhoto"
-    with open(screenshot_path, "rb") as foto:
+    print("📩 Enviando PDF para Telegram...")
+    url = f"https://api.telegram.org/bot{TELEGRAM_TOKEN}/sendDocument"
+    with open(pdf_path, "rb") as arquivo:
         response = requests.post(
             url,
             data={"chat_id": CHAT_ID, "caption": MENSAGEM},
-            files={"photo": foto}
+            files={"document": arquivo}
         )
+
     if response.status_code != 200:
         raise Exception(f"Erro ao enviar Telegram: {response.text}")
 
-    print("✅ Print enviado com sucesso!")
+    print("✅ PDF enviado com sucesso!")
 
 except Exception as e:
     print("❌ Erro:", e)
