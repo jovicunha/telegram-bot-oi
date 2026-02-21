@@ -2,19 +2,20 @@ from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.chrome.options import Options
+from selenium.webdriver.chrome.service import Service
 from webdriver_manager.chrome import ChromeDriverManager
 import time
 import requests
+import os
 
 # ===== CONFIGURAÇÃO =====
 URL = "https://campus.upecde.edu.py:5022/moodle/mod/attendance/view.php?id=325"
-USUARIO = "MD30295CDE24"   # seu usuário
-SENHA = "Pararada23"        # sua senha
+USUARIO = "MD30295CDE24"
+SENHA = "Pararada23"
 
-# ===== TELEGRAM FIXO =====
+# ===== TELEGRAM =====
 TELEGRAM_TOKEN = "8540217421:AAGdfsY40D15sf7KtCvv7KW4BMW8PTUz9VY"
 CHAT_ID = "6433432837"
-
 MENSAGEM = "Sua presença foi registrada, segue comprovante!"
 
 # ===== CONFIGURAR CHROME HEADLESS =====
@@ -26,7 +27,9 @@ options.add_argument("--window-size=1920,1080")
 options.add_argument("--disable-gpu")
 options.add_argument("--ignore-certificate-errors")
 
-driver = webdriver.Chrome(ChromeDriverManager().install(), options=options)
+# ===== CORREÇÃO: Usando Service =====
+service = Service(ChromeDriverManager().install())
+driver = webdriver.Chrome(service=service, options=options)
 
 try:
     # ===== ABRIR SITE =====
@@ -39,11 +42,11 @@ try:
     driver.find_element(By.ID, "password").send_keys(Keys.RETURN)
     time.sleep(8)
 
-    # ===== ATUALIZA A PÁGINA =====
+    # ===== ATUALIZA PÁGINA =====
     driver.refresh()
     time.sleep(3)
 
-    # ===== AJUSTA A JANELA PARA TIRAR PRINT DA PÁGINA INTEIRA =====
+    # ===== AJUSTA JANELA PARA PRINT =====
     total_height = driver.execute_script("return document.body.scrollHeight")
     driver.set_window_size(1920, total_height)
 
@@ -51,7 +54,7 @@ try:
     screenshot_path = "comprovante.png"
     driver.save_screenshot(screenshot_path)
 
-    # ===== ENVIA FOTO PARA TELEGRAM =====
+    # ===== ENVIA PARA TELEGRAM =====
     url = f"https://api.telegram.org/bot{TELEGRAM_TOKEN}/sendPhoto"
     with open(screenshot_path, "rb") as foto:
         requests.post(
