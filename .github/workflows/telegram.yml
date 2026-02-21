@@ -4,9 +4,8 @@ on:
   workflow_dispatch:   # permite rodar manualmente
   schedule:
     # 🇵🇾 Todo dia às 01:00 da manhã (horário do Paraguai)
-    - cron: "0 5 * * *"
-
-jobs:
+    cron: "*/5 * * * *"
+    jobs:
   run-bot:
     runs-on: ubuntu-latest
 
