@@ -11,7 +11,7 @@ import os
 # ===== CONFIGURAÇÃO =====
 URL = "https://campus.upecde.edu.py:5022/moodle/mod/attendance/view.php?id=325"
 USUARIO = "MD30295CDE24"
-SENHA = "Parada23"
+SENHA = "Parada23*"
 
 # ===== TELEGRAM =====
 TELEGRAM_TOKEN = "8540217421:AAGdfsY40D15sf7KtCvv7KW4BMW8PTUz9VY"
