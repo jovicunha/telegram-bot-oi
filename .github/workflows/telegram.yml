@@ -3,7 +3,8 @@ name: Presenca Moodle Bot
 on:
   workflow_dispatch:   # permite rodar manualmente
   schedule:
-    - cron: "0 0 * * *"  # roda todos os dias às 00:00 UTC
+    # rodar todo dia às 00:30 horário de Brasília (UTC-3 = 03:30 UTC)
+    - cron: "30 3 * * *"
 
 jobs:
   run-bot:
