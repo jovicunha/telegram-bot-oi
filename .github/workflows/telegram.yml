@@ -1,0 +1,27 @@
+name: Enviar mensagem Telegram
+
+on:
+  workflow_dispatch:   # permite rodar manualmente pelo GitHub
+  schedule:
+    - cron: '0 12 * * *' # opcional: envia todo dia às 12h UTC
+
+jobs:
+  send-message:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Clonar repositório
+        uses: actions/checkout@v3
+
+      - name: Configurar Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.x'
+
+      - name: Instalar requests
+        run: pip install requests
+
+      - name: Rodar script Telegram
+        run: python telegram_oi.py
+        env:
+          TELEGRAM_TOKEN: ${{ secrets.TELEGRAM_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
