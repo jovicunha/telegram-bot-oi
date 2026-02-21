@@ -1,36 +1,31 @@
-name: Presenca Moodle Bot
+name: Registrar Presença Moodle
 
 on:
-  workflow_dispatch:   # permite rodar manualment
   schedule:
-    - cron: "*/3 * * * *"   # ⏱️ a cada 3 minutos (UTC)
+    # ⏰ HORÁRIO EM UTC (ajuste abaixo)
+    - cron: '0 11 * * *'
+  workflow_dispatch:  # permite rodar manualmente também
 
 jobs:
-  run-bot:
+  run-script:
     runs-on: ubuntu-latest
 
     steps:
-      - name: 📥 Baixar código do repositório
+      - name: 📥 Baixar repositório
         uses: actions/checkout@v4
 
-      - name: 🐍 Instalar Python
+      - name: 🐍 Configurar Python
         uses: actions/setup-python@v5
         with:
-          python-version: "3.11"
+          python-version: '3.11'
 
       - name: 📦 Instalar dependências
-        run: |
-          pip install selenium webdriver-manager requests
+        run: pip install requests
 
-      - name: 🌐 Instalar Google Chrome
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y google-chrome-stable
-
-      - name: ▶️ Executar script do bot
+      - name: ▶️ Executar script
         env:
           MOODLE_USER: ${{ secrets.MOODLE_USER }}
           MOODLE_PASS: ${{ secrets.MOODLE_PASS }}
           TELEGRAM_TOKEN: ${{ secrets.TELEGRAM_TOKEN }}
           CHAT_ID: ${{ secrets.CHAT_ID }}
-        run: python monitor_moodle.py
+        run: monitor_moodle.py
